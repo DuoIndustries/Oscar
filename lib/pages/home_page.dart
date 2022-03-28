@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'main_page.dart';
 import 'tasks_page.dart';
 import 'finance_page.dart';
+import 'functions_page.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -122,6 +123,31 @@ class _HomePageState extends State<HomePage> {
                           'Финансы',
                           style: TextStyle(
                             color: _currentIndex == 2 ? Colors.amberAccent : Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  MaterialButton(
+                    minWidth: 40,
+                    onPressed: () {
+                      setState(() {
+                        currentScreen =
+                            FunctionsPage(); // if user taps on this dashboard tab will be active
+                        _currentIndex = 3;
+                      });
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Icon(
+                          Icons.account_tree_sharp,
+                          color: _currentIndex == 3 ? Colors.redAccent : Colors.grey,
+                        ),
+                        Text(
+                          'Функции',
+                          style: TextStyle(
+                            color: _currentIndex == 3 ? Colors.redAccent : Colors.grey,
                           ),
                         ),
                       ],
