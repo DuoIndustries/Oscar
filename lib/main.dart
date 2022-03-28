@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:oscar/pages/home_page.dart';
+import 'splash_screen.dart';
 
 void main() {
   runApp(
     MaterialApp(
-      home: HomePage(),
-      theme: ThemeData(
-        primaryColor: Colors.greenAccent
-      ),
+      home: SplashScreen(),
       debugShowCheckedModeBanner: false,
     ),
   );
