@@ -28,7 +28,24 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: PageStorage(
-        child: currentScreen,
+        child: Stack(
+          children: [
+            Container(
+              alignment: Alignment.topLeft,
+              height: 75,
+              width: 75,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(bottomRight: Radius.circular(100)),
+                boxShadow: [BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10
+                )]
+              ),
+            ),
+            currentScreen
+          ],
+        ),
         bucket: bucket,
       ),
       floatingActionButton: FloatingActionButton(

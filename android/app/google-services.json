@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1036911526698",
+    "project_id": "duo-base",
+    "storage_bucket": "duo-base.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1036911526698:android:538d593b240a2f9d1cd453",
+        "android_client_info": {
+          "package_name": "duo.oscar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1036911526698-lqa68631br5c7bu9dvaiopf2grhf5mne.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "duo.oscar",
+            "certificate_hash": "6784774ce5298cfbdd467951a2bdc53713b47f0a"
+          }
+        },
+        {
+          "client_id": "1036911526698-g3rqa9jmucbtu6sk1koacn0qi4ro0d13.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2RBSWUtsWEDRr2dwE8ebyTolUyMF2OTE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1036911526698-g3rqa9jmucbtu6sk1koacn0qi4ro0d13.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

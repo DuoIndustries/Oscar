@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:oscar/pages/home_page.dart';
 import 'registration_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginPage extends StatefulWidget{
 
@@ -9,8 +13,12 @@ class LoginPage extends StatefulWidget{
 
 class _LoginPageState extends State<LoginPage> {
 
+  final _formKey = GlobalKey<FormState>();
+
   final TextEditingController loginController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
+
+  final _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +27,16 @@ class _LoginPageState extends State<LoginPage> {
       autofocus: false,
       controller: loginController,
       keyboardType: TextInputType.emailAddress,
+      validator: (value)  {
+        if (value!.isEmpty) {
+          return "Логин не введён";
+        }
+        if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
+            .hasMatch(value)) {
+          return ("Введите валидный логин");
+        }
+        return null;
+      },
       onSaved: (value) {
         loginController.text = value!;
       },
@@ -36,6 +54,15 @@ class _LoginPageState extends State<LoginPage> {
       obscureText: true,
       controller: passwordController,
       keyboardType: TextInputType.emailAddress,
+        validator: (value) {
+          RegExp regex = new RegExp(r'^.{8,}$');
+          if (value!.isEmpty) {
+            return ("Пароль не введён");
+          }
+          if (!regex.hasMatch(value)) {
+            return ("Пароль должен содержать более 8 символов");
+          }
+        },
       onSaved: (value) {
         passwordController.text = value!;
       },
@@ -53,7 +80,9 @@ class _LoginPageState extends State<LoginPage> {
       color: Colors.greenAccent,
       borderRadius: BorderRadius.circular(12),
       child: MaterialButton(
-        onPressed: () {},
+        onPressed: () {
+          signIn(loginController.text, passwordController.text);
+        },
         minWidth: MediaQuery.of(context).size.width * 0.8,
         child: Text('Войти', style: TextStyle(color: Colors.white, fontSize: 18),),
       ),
@@ -80,23 +109,30 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(
                   height: MediaQuery.of(context).size.height / 7,
                 ),
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  child: loginField,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  child: passwordField,
-                ),
-                SizedBox(
-                  height: 160,
-                ),
-                loginButton,
-                SizedBox(
-                  height: 20,
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        child: loginField,
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        child: passwordField,
+                      ),
+                      SizedBox(
+                        height: 160,
+                      ),
+                      loginButton,
+                      SizedBox(
+                        height: 20,
+                      ),
+                    ],
+                  ),
                 ),
                 GestureDetector(
                   onTap: () {
@@ -110,5 +146,16 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+  void signIn(String email, String password) async {
+    if (_formKey.currentState!.validate()) {
+      await _auth.signInWithEmailAndPassword(email: email, password: password).then((uid) => {
+        Fluttertoast.showToast(msg: "Авторизация успешна"),
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => HomePage())),
+      }).catchError((e) {
+        Fluttertoast.showToast(msg: e!.message);
+      });
+    }
   }
 }
