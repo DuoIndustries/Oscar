@@ -3,6 +3,9 @@ import 'main_page.dart';
 import 'tasks_page.dart';
 import 'finance_page.dart';
 import 'functions_page.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:avatar_glow/avatar_glow.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -12,6 +15,40 @@ class HomePage extends StatefulWidget {
 
 
 class _HomePageState extends State<HomePage> {
+
+  var _speechToText = SpeechToText();
+  bool isListening = false;
+  String recognizedText = '';
+
+  void listen() async {
+    if (!isListening) {
+      bool available = await _speechToText.initialize(
+        onStatus: (status) => print("$status"),
+        onError: (errorNotification) => print("$errorNotification")
+      );
+      if (available) {
+        setState(() {
+          isListening = true;
+        });
+        _speechToText.listen(
+          onResult: (result) => setState(() {
+            recognizedText = result.recognizedWords;
+            print(recognizedText);
+          }),
+        );
+      }
+    } else {
+      setState(() {
+        isListening = false;
+      });
+      _speechToText.stop();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   int _currentIndex = 0;
 
@@ -48,10 +85,24 @@ class _HomePageState extends State<HomePage> {
         ),
         bucket: bucket,
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.album),
-        backgroundColor: Colors.grey,
-        onPressed: () {},
+      floatingActionButton: AvatarGlow(
+        animate: isListening,
+        repeat: true,
+        showTwoGlows: true,
+        child: RawMaterialButton(
+          constraints: BoxConstraints.tight(Size(50, 50)),
+          onPressed: () {
+            listen();
+          },
+          child: Icon(Icons.mic, size: 30, color: Colors.white),
+          fillColor: Colors.greenAccent,
+          shape: CircleBorder(),
+          padding: EdgeInsets.all(0),
+        ),
+        endRadius: 30,
+        glowColor: Colors.redAccent,
+        duration: Duration(milliseconds: 2000),
+        repeatPauseDuration: Duration(milliseconds: 100),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
