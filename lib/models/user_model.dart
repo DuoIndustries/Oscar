@@ -5,9 +5,10 @@ class UserModel {
   String? email;
   String? firstName;
   String? secondName;
+  String? tinkoff_token;
   bool? admin;
 
-  UserModel({this.uid, this.email, this.firstName, this.secondName, this.admin});
+  UserModel({this.uid, this.email, this.firstName, this.secondName, this.admin, this.tinkoff_token});
 
   // receiving data from server
   factory UserModel.fromMap(map) {
@@ -16,6 +17,7 @@ class UserModel {
       email: map['email'],
       firstName: map['firstName'],
       secondName: map['secondName'],
+      tinkoff_token: map('tinkoff_token'),
       admin: map['admin']
     );
   }
@@ -27,6 +29,7 @@ class UserModel {
       'email': email,
       'firstName': firstName,
       'secondName': secondName,
+      'tinkoff_token': tinkoff_token,
       'admin': admin
     };
   }

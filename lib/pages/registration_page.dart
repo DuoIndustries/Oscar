@@ -27,7 +27,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   @override
   Widget build(BuildContext context) {
-
     final firstNameField = TextFormField(
       autofocus: false,
       controller: firstNameEditingController,
@@ -238,6 +237,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     userModel.uid = user.uid;
     userModel.firstName = firstNameEditingController.text;
     userModel.secondName = secondNameEditingController.text;
+    userModel.tinkoff_token = '';
     userModel.admin = false;
 
     await firebaseFirestore
