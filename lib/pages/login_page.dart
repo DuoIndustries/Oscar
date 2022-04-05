@@ -4,6 +4,7 @@ import 'registration_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:oscar/models/local_storage.dart';
 
 class LoginPage extends StatefulWidget{
 
@@ -12,6 +13,8 @@ class LoginPage extends StatefulWidget{
 }
 
 class _LoginPageState extends State<LoginPage> {
+
+  Storage _storage = Storage();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -149,10 +152,12 @@ class _LoginPageState extends State<LoginPage> {
   }
   void signIn(String email, String password) async {
     if (_formKey.currentState!.validate()) {
-      await _auth.signInWithEmailAndPassword(email: email, password: password).then((uid) => {
-        Fluttertoast.showToast(msg: "Авторизация успешна"),
+      await _auth.signInWithEmailAndPassword(email: email, password: password).then((uid) {
+        Fluttertoast.showToast(msg: "Авторизация успешна");
+        _storage.writeData('uid', uid.user!.uid);
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => HomePage())),
+            MaterialPageRoute(builder: (context) => HomePage())).then((value) => {
+        });
       }).catchError((e) {
         Fluttertoast.showToast(msg: e!.message);
       });

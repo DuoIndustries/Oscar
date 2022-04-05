@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'splash_screen.dart';
-import 'pages/login_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
@@ -8,7 +7,7 @@ void main() async {
   await Firebase.initializeApp();
   runApp(
     MaterialApp(
-      home: LoginPage(),
+      home: SplashScreen(),
       debugShowCheckedModeBanner: false,
     ),
   );

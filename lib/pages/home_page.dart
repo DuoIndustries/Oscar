@@ -185,12 +185,12 @@ class _HomePageState extends State<HomePage> {
                       children: <Widget>[
                         Icon(
                           Icons.account_balance_wallet,
-                          color: _currentIndex == 2 ? Colors.amberAccent : Colors.grey,
+                          color: _currentIndex == 2 ? Colors.orangeAccent : Colors.grey,
                         ),
                         Text(
                           'Финансы',
                           style: TextStyle(
-                            color: _currentIndex == 2 ? Colors.amberAccent : Colors.grey,
+                            color: _currentIndex == 2 ? Colors.orangeAccent : Colors.grey,
                           ),
                         ),
                       ],

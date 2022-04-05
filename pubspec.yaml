@@ -41,6 +41,8 @@ dependencies:
   fluttertoast: ^8.0.9
   speech_to_text: ^5.4.3
   avatar_glow: ^2.0.1
+  flutter_secure_storage: ^5.0.2
+  syncfusion_flutter_charts: ^19.4.56
 
 dev_dependencies:
   flutter_test:
