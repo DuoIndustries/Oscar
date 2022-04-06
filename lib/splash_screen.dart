@@ -26,6 +26,18 @@ class _SplashScreenState extends State<SplashScreen> {
       if (value == null) {
         Timer(Duration(milliseconds: 1000), () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage())))
       } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            elevation: 6.0,
+            backgroundColor: Colors.greenAccent,
+            behavior: SnackBarBehavior.floating,
+            content: Text(
+              'Вход в аккаунт',
+              style: TextStyle(color: Colors.white),
+            ),
+            duration: Duration(milliseconds: 500),
+          )
+        ),
         Timer(Duration(milliseconds: 1000), () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage())))
       }
     });

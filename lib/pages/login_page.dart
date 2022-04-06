@@ -153,7 +153,18 @@ class _LoginPageState extends State<LoginPage> {
   void signIn(String email, String password) async {
     if (_formKey.currentState!.validate()) {
       await _auth.signInWithEmailAndPassword(email: email, password: password).then((uid) {
-        Fluttertoast.showToast(msg: "Авторизация успешна");
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              elevation: 6.0,
+              backgroundColor: Colors.greenAccent,
+              behavior: SnackBarBehavior.floating,
+              content: Text(
+                'Авторизация успешна',
+                style: TextStyle(color: Colors.white),
+              ),
+              duration: Duration(milliseconds: 500),
+            )
+        );
         _storage.writeData('uid', uid.user!.uid);
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => HomePage())).then((value) => {

@@ -244,7 +244,18 @@ class _RegistrationPageState extends State<RegistrationPage> {
         .collection("users")
         .doc(user.uid)
         .set(userModel.toMap());
-    Fluttertoast.showToast(msg: "Аккаунт успешно создан");
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          elevation: 6.0,
+          backgroundColor: Colors.greenAccent,
+          behavior: SnackBarBehavior.floating,
+          content: Text(
+            'Аккаунт успешно создан',
+            style: TextStyle(color: Colors.white),
+          ),
+          duration: Duration(milliseconds: 500),
+        )
+    );
 
     Navigator.pushAndRemoveUntil(
         (context),

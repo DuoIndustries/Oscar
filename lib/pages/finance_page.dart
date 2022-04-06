@@ -21,7 +21,7 @@ class _FinancePageState extends State<FinancePage> {
   static String tinkoff_token = '';
 
 
-  TinkoffInvestApi tinkoffApi = TinkoffInvestApi('', debug: true);
+  TinkoffInvestApi tinkoffApi = TinkoffInvestApi(tinkoff_token, debug: false, sandboxMode: true);
 
   @override
   void initState() {
@@ -30,19 +30,21 @@ class _FinancePageState extends State<FinancePage> {
   }
 
   void checkTinkoffApi() async {
-    await _storage.readData('uid').then((String? value) => {
-      firestoreInstance.collection('users').doc(value).get().then((snapshot) async {
-        if (snapshot.get('tinkoff_token') != '') {
-          setState(() {
-            isTinkoffToken = true;
-            tinkoff_token = snapshot.get('tinkoff_token');
-            tinkoffApi = TinkoffInvestApi(tinkoff_token, debug: true);
-          });
-        } else {
-          isTinkoffToken = false;
-        }
-      })
-    });
+    final snapshot = await firestoreInstance.collection('users').doc(await _storage.readData('uid')).get();
+    if (snapshot.data()!['tinkoff_token'] != '') {
+      setState(() {
+        isTinkoffToken = true;
+        tinkoff_token = snapshot.data()!['tinkoff_token'];
+        tinkoffApi = TinkoffInvestApi(tinkoff_token);
+      });
+    }
+    final portfolioRes = await tinkoffApi.portfolio.load();
+    if (portfolioRes.isValue) {
+      final portfolio = portfolioRes.asValue!.value.payload;
+      print('Portfolio: ${portfolio.positions}');
+    } else {
+      print('Load portfolio failed: ${portfolioRes.asError!.error}');
+    }
   }
 
   @override
