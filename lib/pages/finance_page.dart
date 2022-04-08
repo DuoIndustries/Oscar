@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 import 'package:tinkoff_invest/tinkoff_invest.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:oscar/models/local_storage.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'dart:async';
 
 class FinancePage extends StatefulWidget {
   @override
@@ -27,10 +30,13 @@ class _FinancePageState extends State<FinancePage> {
   @override
   void initState() {
     super.initState();
-    checkTinkoffApi();
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      checkTinkoffApi();
+    });
   }
 
   void checkTinkoffApi() async {
+    double sum = 0;
     final snapshot = await firestoreInstance.collection('users').doc(await _storage.readData('uid')).get();
     if (snapshot.data()!['tinkoff_token'] != '') {
       setState(() {
@@ -42,22 +48,21 @@ class _FinancePageState extends State<FinancePage> {
     final portfolioCurrency = await tinkoffApi.portfolio.currencies();
     if (portfolioCurrency.isValue) {
       portfolioCurrency.asValue!.value..payload.currencies.forEach((element) {
-        print(element);
         if (element.currency == Currency.RUB) {
           setState(() {
-            allBalance += element.balance;
+            sum += element.balance;
           });
         }
       });
     }
     final portfolioRes = await tinkoffApi.portfolio.load();
     if (portfolioRes.isValue) {
-      portfolioRes.asValue!.value.payload.positions.forEach((element) async {
-        final marketPrice = await tinkoffApi.market.searchByTicker(element.ticker.toString());
-        print(marketPrice.asValue!.value.payload.instruments.first);
-        print(element);
+      portfolioRes.asValue!.value.payload.positions.forEach((element) {
         setState(() {
-          allBalance += element.balance * element.averagePositionPrice!.value;
+          sum += element.balance * element.averagePositionPrice!.value;
+        });
+        setState(() {
+          allBalance = sum;
         });
       });
     }
@@ -81,7 +86,9 @@ class _FinancePageState extends State<FinancePage> {
         ),
         Center(
           child: OutlinedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push((context), MaterialPageRoute(builder: (context) => AnalyticsPage(tinkoffApi)));
+            },
             child: Container(
               width: MediaQuery.of(context).size.width * 0.8,
               height: MediaQuery.of(context).size.height * 0.03,
@@ -92,7 +99,7 @@ class _FinancePageState extends State<FinancePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Icon(Icons.architecture, color: Colors.black87),
+                      Icon(FontAwesomeIcons.chartPie, color: Colors.black87),
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.3,
                       ),
@@ -103,7 +110,7 @@ class _FinancePageState extends State<FinancePage> {
               ),
             ),
             style: OutlinedButton.styleFrom(
-                primary: Colors.greenAccent,
+                primary: Colors.black12,
                 padding: EdgeInsets.all(10),
             ),
           ),
@@ -111,4 +118,190 @@ class _FinancePageState extends State<FinancePage> {
       ],
     );
   }
+}
+
+
+class AnalyticsPage extends StatefulWidget {
+
+  TinkoffInvestApi tinkoffApi;
+
+  AnalyticsPage(this.tinkoffApi);
+
+
+  @override
+  _AnalyticsPageState createState() => _AnalyticsPageState(tinkoffApi);
+}
+
+class _AnalyticsPageState extends State<AnalyticsPage> with TickerProviderStateMixin {
+
+  TinkoffInvestApi tinkoffApi;
+
+  _AnalyticsPageState(this.tinkoffApi);
+
+  late TooltipBehavior _tooltipBehavior;
+
+  final List<ChartData> portfolioAssets = [];
+
+  @override
+  void initState() {
+    _tooltipBehavior =  TooltipBehavior(enable: true);
+    super.initState();
+    tinkoffInit();
+  }
+
+  void tinkoffInit() async {
+    final portfolioRes = await tinkoffApi.portfolio.load();
+    if (portfolioRes.isValue) {
+      portfolioRes.asValue!.value.payload.positions.forEach((element) {
+        setState(() {
+          portfolioAssets.add(ChartData(element.name, element.balance * element.averagePositionPrice!.value));
+        });
+      });
+    }
+    print(portfolioAssets);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    TabController tabController = TabController(length: 2, vsync: this);
+    TabController tabControllerBalance = TabController(length: 2, vsync: this);
+    return Scaffold(
+      body: Column(
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.04,
+          ),
+          Container(
+            alignment: Alignment.topLeft,
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.close, color: Colors.black),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                Text('Аналитика')
+              ],
+            )
+          ),
+          Container(
+            child: TabBar(
+              controller: tabController,
+              labelColor: Colors.black,
+              tabs: [
+                Tab(text: 'Портфель',),
+                Tab(text: 'Баланс',)
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: tabController,
+              children: [
+                Container(
+                  padding: EdgeInsets.only(bottom: 300, left: 20, right: 20),
+                  child: SfCartesianChart(
+                    legend: Legend(isVisible: true),
+                    series: <ChartSeries>[
+                      SplineAreaSeries<ExpenseData, String>(
+                          dataSource: [
+                            ExpenseData('1', 3),
+                            ExpenseData('2', 5)
+                          ],
+                          xValueMapper: (ExpenseData exp, _) => exp.category,
+                          yValueMapper: (ExpenseData exp, _) => exp.value,
+                          name: 'Доход',
+                          markerSettings: MarkerSettings(
+                            isVisible: true,
+                          )),
+                      SplineAreaSeries<ExpenseData, String>(
+                          dataSource: [
+                            ExpenseData('1', 2),
+                            ExpenseData('2', 3)
+                          ],
+                          xValueMapper: (ExpenseData exp, _) => exp.category,
+                          yValueMapper: (ExpenseData exp, _) => exp.value,
+                          name: 'Расходы',
+                          markerSettings: MarkerSettings(
+                            isVisible: true,
+                          )),
+                    ],
+                    primaryXAxis: CategoryAxis(),
+                  )
+                ),
+                Container(
+                  padding: EdgeInsets.only(right: 50, left: 50),
+                  alignment: Alignment.topCenter,
+                  child: Column(
+                    children: [
+                      Container(
+                        child: TabBar(
+                          controller: tabControllerBalance,
+                          labelColor: Colors.black87,
+                          indicator: BoxDecoration(
+                              color: Colors.redAccent,
+                              borderRadius: BorderRadius.circular(20)
+                          ),
+                          tabs: [
+                            Container(
+                              height: 40,
+                              child: Center(child: Text('Активы'),),
+                            ),
+                            Container(
+                              height: 40,
+                              child: Center(child: Text('Банки'),),
+                            )
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          child: TabBarView(
+                            controller: tabControllerBalance,
+                            children: [
+                              SfCircularChart(
+                                tooltipBehavior: _tooltipBehavior,
+                                legend: Legend(isVisible: true),
+                                series: <CircularSeries>[
+                                  PieSeries<ChartData, String>(
+                                      dataSource: portfolioAssets,
+                                      enableTooltip: true,
+                                      xValueMapper: (ChartData data, _) => data.x,
+                                      yValueMapper: (ChartData data, _) => data.y,
+                                      dataLabelSettings: DataLabelSettings(isVisible: true)
+                                  )
+                                ],
+                              ),
+                              Text('2')
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  )
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class ChartData {
+  ChartData(this.x, this.y);
+  final String x;
+  final double y;
+}
+
+class ExpenseData {
+  ExpenseData(
+      this.category, this.value);
+  final String category;
+  final num value;
 }

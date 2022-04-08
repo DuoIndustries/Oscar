@@ -6,6 +6,7 @@ import 'functions_page.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -154,7 +155,7 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Icon(
-                          Icons.assignment,
+                          FontAwesomeIcons.barsProgress,
                           color: _currentIndex == 1 ? Colors.deepPurpleAccent : Colors.grey,
                         ),
                         Text(
