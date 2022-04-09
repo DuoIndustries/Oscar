@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:oscar/models/local_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:async';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class FinancePage extends StatefulWidget {
   @override
@@ -55,9 +56,10 @@ class _FinancePageState extends State<FinancePage> {
         }
       });
     }
+
     final portfolioRes = await tinkoffApi.portfolio.load();
     if (portfolioRes.isValue) {
-      portfolioRes.asValue!.value.payload.positions.forEach((element) {
+      portfolioRes.asValue!.value.payload.positions.forEach((element) async {
         setState(() {
           sum += element.balance * element.averagePositionPrice!.value;
         });
@@ -142,6 +144,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> with TickerProviderStateM
 
   final List<ChartData> portfolioAssets = [];
 
+  final List<HistoryData> userHistory = [];
+
   @override
   void initState() {
     _tooltipBehavior =  TooltipBehavior(enable: true);
@@ -158,12 +162,28 @@ class _AnalyticsPageState extends State<AnalyticsPage> with TickerProviderStateM
         });
       });
     }
-    print(portfolioAssets);
+    final out = await tinkoffApi.operations.load(DateTime.parse('2021-01-01'), DateTime.parse('2022-04-09'));
+    out.asValue!.value.payload.operations.forEach((element) {
+      if (element.operationType == OperationTypeWithCommission.sell && element.status == OperationStatus.done) {
+        print(element);
+        setState(() {
+          userHistory.add(HistoryData('Тинькофф банк', element.payment, element.date, Icon(FontAwesomeIcons.moneyBillTransfer, color: Colors.greenAccent,)));
+        });
+      } else if (element.operationType == OperationTypeWithCommission.buy && element.status == OperationStatus.done) {
+        print(element);
+        setState(() {
+          userHistory.add(HistoryData('Тинькофф банк', element.payment, element.date, Icon(FontAwesomeIcons.moneyBillTransfer, color: Colors.greenAccent)));
+        });
+      }
+    });
+    userHistory.forEach((element) {
+      print(element.cost);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    TabController tabController = TabController(length: 2, vsync: this);
+    TabController tabController = TabController(length: 3, vsync: this);
     TabController tabControllerBalance = TabController(length: 2, vsync: this);
     return Scaffold(
       body: Column(
@@ -191,7 +211,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> with TickerProviderStateM
               labelColor: Colors.black,
               tabs: [
                 Tab(text: 'Портфель',),
-                Tab(text: 'Баланс',)
+                Tab(text: 'Баланс',),
+                Tab(text: 'Операции',)
               ],
             ),
           ),
@@ -284,6 +305,53 @@ class _AnalyticsPageState extends State<AnalyticsPage> with TickerProviderStateM
                     ],
                   )
                 ),
+                Center(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: ListView.builder(
+                        itemCount: userHistory.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: EdgeInsets.only(top: 5, left: 15, right: 15, bottom: 15),
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            height: MediaQuery.of(context).size.height * 0.1,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20.0),
+                              boxShadow: [BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 2
+                              )]
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Center(
+                                  child:  Container(
+                                    padding: EdgeInsets.only(left: 10),
+                                    alignment: Alignment.centerLeft,
+                                    height: 60,
+                                    width: 60,
+                                    child: SvgPicture.asset('assets/svg/tinkoff_app.svg'),
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.only(top: 10),
+                                  child: Text(userHistory[index].bank, style: TextStyle(fontSize: 20),),
+                                ),
+                                Center(
+                                  child:  Container(
+                                    padding: EdgeInsets.only(right: 15),
+                                    child: Text(userHistory[index].cost.toString(), style: TextStyle(fontSize: 18, color: userHistory[index].cost > 0 ? Colors.greenAccent : Colors.redAccent),),
+                                  ),
+                                )
+                              ],
+                            ),
+                          );
+                        }),
+                  ),
+                )
               ],
             ),
           )
@@ -304,4 +372,14 @@ class ExpenseData {
       this.category, this.value);
   final String category;
   final num value;
+}
+
+class HistoryData {
+  HistoryData(
+      this.bank, this.cost, this.dateTime, this.icon
+      );
+  final String bank;
+  final double cost;
+  final DateTime dateTime;
+  final Icon icon;
 }

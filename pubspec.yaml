@@ -74,6 +74,7 @@ flutter:
     - assets/launch_image.png
     - assets/svg/card_vector_one.svg
     - assets/svg/card_vector_two.svg
+    - assets/svg/tinkoff_app.svg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
