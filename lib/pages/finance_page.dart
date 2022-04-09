@@ -343,7 +343,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> with TickerProviderStateM
                                 Center(
                                   child:  Container(
                                     padding: EdgeInsets.only(right: 15),
-                                    child: Text(userHistory[index].cost.toString(), style: TextStyle(fontSize: 18, color: userHistory[index].cost > 0 ? Colors.greenAccent : Colors.redAccent),),
+                                    child: Text((userHistory[index].cost > 0 ? '+' : '') +  userHistory[index].cost.toString(), style: TextStyle(fontSize: 18, color: userHistory[index].cost > 0 ? Colors.greenAccent : Colors.redAccent),),
                                   ),
                                 )
                               ],
